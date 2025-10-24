@@ -1,6 +1,9 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, request, jsonify
-from elena import chat_with_elena
 from flask_cors import CORS
+from elena import chat_with_elena # The rest of your file...
 
 # Initialize Flask app and enable CORS
 app = Flask(__name__)

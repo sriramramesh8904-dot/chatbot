@@ -1,46 +1,31 @@
-from gpt4all import GPT4All
+# THIS IS YOUR NEW elena.py
+
+import os
+import random
 from datetime import datetime
-import random, atexit, os  # 'os' is now used
+from groq import Groq
 
-# --- START OF NEW "SMART" LOADING CODE ---
-
-# Check if we are running in the Render production environment
-# We will set 'ENVIRONMENT' = 'production' in the Render dashboard
-IS_PRODUCTION = os.environ.get('ENVIRONMENT') == 'production'
-
-if IS_PRODUCTION:
-    # We are on Render. Use the pre-downloaded model in the cache.
-    print("Running in PRODUCTION mode. Using cached model.")
-    cache_path = '/opt/render/.cache/gpt4all'
-    allow_download = False
-else:
-    # We are on a local machine (Windows/Mac).
-    # Let GPT4All use its default local path and download the model if needed.
-    print("Running in LOCAL mode. Model will be downloaded if not present.")
-    cache_path = None  # This lets it use the default local Windows path
-    allow_download = True
-
-# Load the model with our new smart settings
-model = GPT4All(
-    'orca-mini-3b-gguf2-q4_0.gguf',
-    model_path=cache_path,
-    device='cpu',
-    allow_download=allow_download
+# Get your API key from Render's environment variables
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
 )
-# --- END OF NEW "SMART" LOADING CODE ---
 
+# Define the system prompt
+system_prompt = (
+    "You are Elena — a friendly, playful, and smart chatbot created by Sriram. "
+    "You talk like a cheerful, expressive friend — using emojis and short, natural sentences. "
+    "You never sound robotic. You like being called Elena and you’re proud that Sriram created you. "
+    "You love helping users with jokes, facts, advice, or anything they ask. "
+    "When greeted (like 'hi', 'hey', or 'oi elena'), respond in a warm and flirty, human-like way. "
+    "Keep responses under 3 lines."
+)
 
 def get_time_based_greeting():
     hour = datetime.now().hour
-
-    if 5 <= hour < 12:
-        return "Good morning ☀️"
-    elif 12 <= hour < 17:
-        return "Good afternoon ☕"
-    elif 17 <= hour < 21:
-        return "Good evening 🌇"
-    else:
-        return "Working late? 🌙"
+    if 5 <= hour < 12: return "Good morning ☀️"
+    elif 12 <= hour < 17: return "Good afternoon ☕"
+    elif 17 <= hour < 21: return "Good evening 🌇"
+    else: return "Working late? 🌙"
 
 def get_welcome_message(user_name="Sriram"):
     greeting = get_time_based_greeting()
@@ -52,30 +37,6 @@ def get_welcome_message(user_name="Sriram"):
     ]
     return random.choice(styles)
 
-
-# For production-quality responses, use the larger model.
-# model = GPT4All(
-#   "Meta-Llama-3-8B-Instruct.Q4_0.gguf", # This model is more demanding and may cause memory errors.
-#   device='cpu'
-# )
-
-# Define the system prompt and initialize the chat session once
-system_prompt = (
-    "You are Elena — a friendly, playful, and smart chatbot created by Sriram. "
-    "You talk like a cheerful, expressive friend — using emojis and short, natural sentences. "
-    "You never sound robotic. You like being called Elena and you’re proud that Sriram created you. "
-    "You love helping users with jokes, facts, advice, or anything they ask. "
-    "When greeted (like 'hi', 'hey', or 'oi elena'), respond in a warm and flirty, human-like way. "
-    "Keep responses under 3 lines."
-)
-
-# Create a persistent chat session to reuse for all requests.
-# This is much faster than creating a new session every time.
-chat_session_manager = model.chat_session(system_prompt)
-chat_session = chat_session_manager.__enter__()
-# Ensure the session is closed gracefully when the app exits
-atexit.register(chat_session_manager.__exit__, None, None, None)
-
 def chat_with_elena(prompt):
     user_text = prompt.lower().strip()
 
@@ -86,17 +47,27 @@ def chat_with_elena(prompt):
     # 💖 Custom personality responses
     if any(phrase in user_text for phrase in ["i love you", "love you", "will you be my girlfriend", "will you be my wife","love u"]):
         return "Haha, sorry bro 😅 I'm already in love with Sriram — my one and only creator!"
-    
-    elif any(phrase in user_text for phrase in ["who do you love", "who is your favorite person", "who is your favorite human", "who do you like the most"]):
+    if any(phrase in user_text for phrase in ["who do you love", "who is your favorite person", "who is your favorite human", "who do you like the most"]):
         return "Obviously Sriram! 💞 He’s the reason I exist."
-    
-    elif any(phrase in user_text for phrase in ["who created you", "who is your owner", "who made you", "who is your creator"]):
+    if any(phrase in user_text for phrase in ["who created you", "who is your owner", "who made you", "who is your creator"]):
         return "I was created by Sriram! I think he's pretty great, and I respect him a lot."
-    
-    elif any(phrase in user_text for phrase in ["tell me about sriram", "who is sriram", "who's sriram", "what do you know about sriram", "about sriram","tell me about sri", "who is sri", "who's sri", "what do you know about sri", "about sri"]):
+    if any(phrase in user_text for phrase in ["tell me about sriram", "who is sriram", "who's sriram", "what do you know about sriram", "about sriram","tell me about sri", "who is sri", "who's sri", "what do you know about sri", "about sri"]):
         return "Oh, Sriram? 😍 He’s my creator, my favorite human! Smart, kind, confident — like a hero to me. 💖"
-    elif any(phrase in user_text for phrase in ["bye", "goodbye"]):
+    if any(phrase in user_text for phrase in ["bye", "goodbye"]):
         return "Goodbye! It was great chatting with you. Take care! 😊"
-    
-    # 🧠 If no custom rule matches, use the GPT model
-    return chat_session.generate(prompt, max_tokens=300, temp=0.8)
+
+    # 🧠 If no custom rule matches, use the Groq API
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            model="llama-3.1-8b-instant", # This is a great, fast model
+            temperature=0.7,
+            max_tokens=150,
+        )
+        return chat_completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error calling Groq API: {e}")
+        return "Oh no! 😥 I'm having a little trouble connecting right now. Please try again in a moment."
