@@ -48,7 +48,7 @@ def chat_with_elena(prompt, history):
     user_text = prompt.lower().strip()
 
     # 💬 Check for greetings first
-    if user_text in ["hi", "hello", "hey", "oi", "oi elena", "hi elena", "hello elena"]:
+    if user_text in ["hi", "hello", "hey", "oi", "oi elena", "hi elena", "hello elena","hey elena","oi elena!","hi elena!","hello elena!","hey elena!"]:
         return get_welcome_message("Sriram")
 
     # 💖 Custom personality responses
