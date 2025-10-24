@@ -10,7 +10,8 @@ CORS(app)
 def chat():
     data = request.json
     user_input = data.get("message", "")
-    reply = chat_with_elena(user_input)
+    history = data.get("history", [])
+    reply = chat_with_elena(user_input, history)
     return jsonify({"reply": reply})
 
 if __name__ == "__main__":

@@ -44,12 +44,7 @@ system_prompt = (
     "Keep responses under 3 lines."
 )
 
-# Create a persistent chat session to reuse for all requests.
-# This is much faster than creating a new session every time.
-chat_session_manager = model.chat_session(system_prompt)
-chat_session = chat_session_manager.__enter__()
-
-def chat_with_elena(prompt):
+def chat_with_elena(prompt, history):
     user_text = prompt.lower().strip()
 
     # 💬 Check for greetings first
@@ -71,4 +66,11 @@ def chat_with_elena(prompt):
     elif any(phrase in user_text for phrase in ["Bye" or "Goodbye"]):
         return "Goodbye! It was great chatting with you. Take care! 😊"
     # 🧠 If no custom rule matches, use the GPT model
-    return chat_session.generate(prompt, max_tokens=300, temp=0.8)
+    with model.chat_session(system_prompt) as session:
+        # "Prime" the conversation with the last few messages
+        for message in history:
+            # We generate a response to each message in the history to build context,
+            # but we don't use the output.
+            session.generate(f"{message['sender']}: {message['text']}\n", temp=0, max_tokens=1)
+        # Now, generate a response for the new prompt
+        return session.generate(prompt, max_tokens=300, temp=0.8)
