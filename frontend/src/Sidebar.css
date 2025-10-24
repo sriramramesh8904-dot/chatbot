@@ -1,0 +1,300 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--sidebar-border);
+  transition: transform 0.3s ease;
+  flex-shrink: 0; /* Prevent sidebar from shrinking when window is small */
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.sidebar-menu-button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+
+.sidebar-top-header {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between icon and text */
+  padding: 15px 10px; /* Adjusted padding for a cleaner look */
+  color: var(--text-color);
+}
+
+.sidebar-top-header h2 {
+  font-size: 1.2rem; /* Adjusted font size to fit on one line */
+  font-weight: 500;
+  margin: 0;
+  /* Create the gradient text effect */
+  background: linear-gradient(to right, #4E8CFF, #8A5CFF); /* Gemini-style blue to purple gradient */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: filter 0.3s ease; /* Add a smooth transition for the hover effect */
+}
+
+.sidebar-top-header h2:hover {
+  filter: brightness(1.2); /* Slightly brighten the gradient on hover */
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.new-chat-button {
+  flex-grow: 1;
+  padding: 10px;
+  background-color: transparent;
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.new-chat-tab-button {
+  padding: 8px;
+  background-color: transparent;
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-chat-tab-button:hover {
+  background-color: var(--hover-bg);
+}
+
+.clear-all-button {
+  padding: 8px;
+  background-color: transparent;
+  border: 1px solid var(--input-border);
+  color: var(--secondary-text-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.clear-all-button:hover {
+  background-color: #8c1c1c; /* A red hover to indicate a destructive action */
+  border-color: #8c1c1c;
+  color: #fff;
+}
+
+.clear-all-button:hover svg {
+  animation: shake 0.5s;
+}
+
+.chat-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  color: var(--text-color);
+}
+
+.chat-history-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.chat-history-list li:hover {
+  background-color: var(--hover-bg);
+}
+
+.chat-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+.delete-chat-button {
+  background: none;
+  border: none;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  display: none; /* Hidden by default */
+  padding: 2px;
+  margin-left: 8px;
+}
+
+.chat-history-list li:hover .delete-chat-button {
+  display: block; /* Show on hover */
+}
+
+.delete-chat-button:hover {
+  color: var(--text-color);
+}
+
+/* Collapsed state for the sidebar */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* On mobile, the sidebar should always start off-screen */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+}
+
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.pulsing-dot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--secondary-text-color);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    left: 100%;
+  }
+}
+
+.sidebar-footer {
+  margin-top: auto; /* Pushes the footer to the bottom */
+  padding: 10px 0;
+  position: relative;
+}
+
+.settings-button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+}
+
+.settings-button:hover {
+  background-color: var(--hover-bg);
+}
+
+.settings-menu {
+  position: absolute;
+  bottom: 100%; /* Position above the settings button */
+  left: 0;
+  width: 100%;
+  background-color: var(--hover-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  margin-bottom: 8px;
+  z-index: 1100;
+}
+
+.settings-item {
+  padding: 10px;
+  border-radius: 6px;
+  color: var(--text-color);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  text-decoration: none;
+}
+
+.settings-item:hover {
+  background-color: var(--input-border);
+}
+
+.theme-submenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background-color: var(--hover-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  margin-left: 8px;
+  width: 120px;
+}
+
+.theme-submenu button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  padding: 10px;
+  width: 100%;
+  text-align: left;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.theme-submenu button:hover {
+  background-color: var(--input-border);
+}
+
+/* Keyframes for the popover animation */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(-10deg); }
+  20% { transform: rotate(10deg); }
+  30% { transform: rotate(-10deg); }
+  40% { transform: rotate(0deg); }
+}
