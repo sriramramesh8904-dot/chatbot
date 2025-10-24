@@ -345,7 +345,6 @@ function App() {
     // Resubmit to the bot to get a new response
     try {
       const response = await axios.post('http://127.0.0.1:5000/chat', {
-        history: updatedMessages.slice(-7, -1), // Send last 6 messages
         message: editedUserMessage.text,
       });
       const botMessage = { text: response.data.reply, sender: 'bot', timestamp: new Date() };
@@ -409,8 +408,7 @@ function App() {
     // --- To re-enable backend connection, comment out the simulation block above ---
     // --- and uncomment the block below. ---
     try {
-      const response = await axios.post((import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000') + '/chat', {
-        history: messages.slice(-6), // Send the last 6 messages
+      const response = await axios.post('http://127.0.0.1:5000/chat', {
         message: userMessage.text,
       });
 
