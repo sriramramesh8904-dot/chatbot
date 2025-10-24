@@ -4,7 +4,7 @@ from datetime import datetime
 import random
 
 
-model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", device='cpu', allow_download=False)
+model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", device='cpu', allow_download=True)
 def get_time_based_greeting():
     hour = datetime.now().hour
 
