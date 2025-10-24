@@ -1,10 +1,35 @@
-
 from gpt4all import GPT4All
 from datetime import datetime
-import random
+import random, atexit, os  # 'os' is now used
+
+# --- START OF NEW "SMART" LOADING CODE ---
+
+# Check if we are running in the Render production environment
+# We will set 'ENVIRONMENT' = 'production' in the Render dashboard
+IS_PRODUCTION = os.environ.get('ENVIRONMENT') == 'production'
+
+if IS_PRODUCTION:
+    # We are on Render. Use the pre-downloaded model in the cache.
+    print("Running in PRODUCTION mode. Using cached model.")
+    cache_path = '/opt/render/.cache/gpt4all'
+    allow_download = False
+else:
+    # We are on a local machine (Windows/Mac).
+    # Let GPT4All use its default local path and download the model if needed.
+    print("Running in LOCAL mode. Model will be downloaded if not present.")
+    cache_path = None  # This lets it use the default local Windows path
+    allow_download = True
+
+# Load the model with our new smart settings
+model = GPT4All(
+    'orca-mini-3b-gguf2-q4_0.gguf',
+    model_path=cache_path,
+    device='cpu',
+    allow_download=allow_download
+)
+# --- END OF NEW "SMART" LOADING CODE ---
 
 
-model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", device='cpu', allow_download=False)
 def get_time_based_greeting():
     hour = datetime.now().hour
 
@@ -30,8 +55,8 @@ def get_welcome_message(user_name="Sriram"):
 
 # For production-quality responses, use the larger model.
 # model = GPT4All(
-#     "Meta-Llama-3-8B-Instruct.Q4_0.gguf", # This model is more demanding and may cause memory errors.
-#     device='cpu'
+#   "Meta-Llama-3-8B-Instruct.Q4_0.gguf", # This model is more demanding and may cause memory errors.
+#   device='cpu'
 # )
 
 # Define the system prompt and initialize the chat session once
@@ -48,6 +73,8 @@ system_prompt = (
 # This is much faster than creating a new session every time.
 chat_session_manager = model.chat_session(system_prompt)
 chat_session = chat_session_manager.__enter__()
+# Ensure the session is closed gracefully when the app exits
+atexit.register(chat_session_manager.__exit__, None, None, None)
 
 def chat_with_elena(prompt):
     user_text = prompt.lower().strip()
@@ -68,7 +95,8 @@ def chat_with_elena(prompt):
     
     elif any(phrase in user_text for phrase in ["tell me about sriram", "who is sriram", "who's sriram", "what do you know about sriram", "about sriram","tell me about sri", "who is sri", "who's sri", "what do you know about sri", "about sri"]):
         return "Oh, Sriram? 😍 He’s my creator, my favorite human! Smart, kind, confident — like a hero to me. 💖"
-    elif any(phrase in user_text for phrase in ["Bye" or "Goodbye"]):
+    elif any(phrase in user_text for phrase in ["bye", "goodbye"]):
         return "Goodbye! It was great chatting with you. Take care! 😊"
+    
     # 🧠 If no custom rule matches, use the GPT model
     return chat_session.generate(prompt, max_tokens=300, temp=0.8)
