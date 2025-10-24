@@ -14,4 +14,5 @@ def chat():
     return jsonify({"reply": reply})
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    # This part is for local development only. Gunicorn will be used in production.
+    app.run(host="0.0.0.0", port=5000, debug=True)
